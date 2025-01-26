@@ -32,4 +32,43 @@ This project was created to solve the issue of playing M3U Plus lists on Jellyfi
 ## Deployment as a Docker container
 
 
+```bash
+version: '3.8'
 
+services:
+  app:
+    image: hannayusuf/m3u4strmV2
+    container_name: m3u4stream_app
+    environment:
+      - MONGODB_PWD=${MONGODB_PWD}  # Fill this with your MongoDB password
+      - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case localhost:27017)
+      - MONGODB_USERNAME=${MONGODB_USERNAME}  # Fill this with your MongoDB username
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill this with your admin password
+    volumes:
+      - /path/to/m3us:/m3us
+      - /path/to/results:/results  # Optional in case you want to easily access the strm results
+      - /path/to/jellyfin/movies:/jellyfin/movies
+      - /path/to/jellyfin/tvshows:/jellyfin/tvshows
+    ports:
+      - "8001:8001"
+      - "3000:3000"
+    network_mode: host
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: m3u4stream_mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}  # Use the same username as above
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PWD}  # Use the same password as above
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  
+```
