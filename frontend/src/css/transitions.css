@@ -1,0 +1,29 @@
+.fade-transition {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+  }
+  
+  .fade-transition-enter {
+    opacity: 0;
+  }
+  
+  .fade-transition-enter-active {
+    opacity: 1;
+  }
+  
+  .fade-transition-exit {
+    opacity: 1;
+  }
+  
+  .fade-transition-exit-active {
+    opacity: 0;
+  }
+
+
+.nprogress-container {
+  z-index: 1031; /* Ensure it's on top of other content */
+}
+
+.nprogress-bar {
+  background: #540ba7; /* Customize the progress bar color */
+}

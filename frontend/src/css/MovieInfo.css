@@ -1,0 +1,33 @@
+/* MovieInfo.css */
+.movie-container {
+  text-align: center;
+  margin: 20px auto; /* Center the container */
+  max-width: 800px; /* Limit the width */
+  background-color: #1a1a1a; /* Darker background */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding for better spacing */
+}
+
+.movie-title {
+  font-size: 2.5em; /* Larger title */
+  margin-bottom: 10px;
+  color: #f0f0f0; /* Light color */
+}
+
+.movie-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 8px; /* Rounded corners */
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}

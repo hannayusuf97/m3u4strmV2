@@ -1,0 +1,51 @@
+.admin-settings-container {
+  display: flex;
+  height: 100vh; /* Full height of the viewport */
+  background-color: #f8f9fa; /* Light background for the main area */
+}
+
+.custom-sidenav {
+  background-color: #343a40; /* Dark background for sidenav */
+  color: #ffffff; /* White text color */
+  border-right: 1px solid #495057; /* Light border on the right */
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 15px;
+  color: #ffffff; /* Logo color */
+  background-color: #2a2e34; /* Logo background color */
+  text-align: center; /* Center the logo */
+}
+
+.custom-nav {
+  padding: 10px 0; /* Padding for the nav items */
+}
+
+/* Increased specificity to ensure text color is applied */
+.custom-nav .nav-item {
+  color: #ffffff !important; /* Set text color to white for nav items */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transitions */
+}
+
+.custom-nav .nav-item:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+  border-radius: 4px; /* Rounded corners on hover */
+}
+
+/* Highlight the selected tab */
+.custom-nav .nav-item.selected {
+  background-color: #007bff; /* Primary blue for selected item */
+  color: #ffffff !important; /* Ensure text color remains white */
+  font-weight: bold; /* Make the selected item text bold */
+  border-radius: 4px; /* Same rounded corners for consistency */
+}
+
+.content {
+  padding: 20px; /* Padding for content */
+  flex: 1; /* Take up remaining space */
+  background-color: #343a40; /* White background for content */
+  border-left: 1px solid #dee2e6; /* Light border on the left */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}

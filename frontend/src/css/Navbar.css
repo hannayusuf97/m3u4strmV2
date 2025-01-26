@@ -1,0 +1,129 @@
+/* Navbar.css */
+
+.navbar {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+    background-color: #1a1a1a; /* Darker navbar background */
+}
+  
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-title {
+    font-size: 1.8rem; /* Increased font size */
+    font-weight: bold;
+    color: #f0f0f0; /* Light color for better readability */
+  }
+  
+  .navbar-nav .nav-link {
+    color: #f8f9fa !important; /* White color for the text */
+    margin-left: 15px;
+    transition: color 0.3s; /* Smooth color transition */
+  }
+  
+  .navbar-nav .nav-link:hover {
+    color: #00aaff !important; /* Brighter hover color */
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='%23fff' stroke-width='2' d='M4 6h22M4 15h22M4 24h22'/%3E%3C/svg%3E");
+  }
+  
+  .form-control {
+    border-radius: 20px; /* Rounded corners for the search input */
+  }
+  
+  .btn-outline-light {
+    border-radius: 20px; /* Rounded corners for the button */
+  }
+
+  /* Add styles for the active navigation link */
+.nav-link.active {
+  font-weight: bold;
+  color: #e9ecef !important; /* Light color for active link */
+  background-color: #540ba7; /* Highlight background color */
+  border-radius: 5px; /* Rounded corners for the background */
+}
+
+  @media (max-width: 768px) {
+    .navbar-brand {
+      text-align: center;
+    }
+  
+    .navbar-title {
+      font-size: 1.2rem;
+    }
+  
+    .d-flex {
+      margin-top: 10px;
+    }
+  }
+
+  /* Style for the search suggestions dropdown */
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #343a40;
+  border: 1px solid #495057;
+  border-radius: 0.25rem;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.suggestions-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestions-dropdown li {
+  padding: 0.5rem 1rem;
+  color: #c51156;
+  cursor: pointer;
+}
+
+.suggestions-dropdown li:hover {
+  background-color: #495057;
+}
+
+.suggestions-dropdown li:active {
+  background-color: #343a40;
+}
+
+/* Style for active nav link */
+.nav-item.active .nav-link {
+  background-color: #495057; /* Background color for the active link */
+  color: #f8f9fa; /* Text color for the active link */
+  border-radius: 0.25rem; /* Rounded corners for the active link */
+}
+
+/* Style for the watch list dropdown */
+.watch-list-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 70%; /* Default right position */
+  background-color: #343a40;
+  border: 1px solid #444;
+  width: 300px;
+  z-index: 1050;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.watch-list-dropdown .card {
+  margin: 0;
+}
+
+/* Adjust the right positioning on mobile */
+@media (max-width: 768px) {
+  .watch-list-dropdown {
+    right: 0%; /* Align dropdown to the right edge of the screen on mobile */
+    left: auto; /* Prevent left from overriding right position */
+  }
+}
+
+

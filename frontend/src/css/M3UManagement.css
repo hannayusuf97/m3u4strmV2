@@ -1,0 +1,146 @@
+.m3u-management {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #343a40;
+    height: 90vh;
+    padding: 20px;
+  }
+  
+  table {
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+    width: 80%;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    background-color: #2c3033;
+    table-layout: auto; /* Allow columns to adjust based on content */
+  }
+  
+  thead {
+    background-color: #343a40;
+    color: #ffffff;
+  }
+  
+  thead th {
+    text-align: left;
+    padding: 12px;
+    border: 1px solid #dddddd; /* Add borders to header cells for alignment */
+    font-size: 1.1rem; /* Slightly larger font size for header */
+  }
+  
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 12px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    word-wrap: break-word; /* Allow text to wrap within cells */
+    min-width: 150px; /* Set a minimum width for the columns */
+  }
+  
+  tbody td {
+    font-size: 0.9rem; /* Smaller font size for body cells */
+  }
+  
+  tbody tr:hover {
+    background-color: #0a80f7; /* Highlight row on hover */
+  }
+  
+  thead tr:hover {
+    background-color: unset; /* Prevent the header row from being highlighted */
+  }
+  
+  .selected-row {
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: bold;
+  }
+  
+  .selected-row:hover {
+    background-color: #0056b3;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between; /* Align buttons beside each other */
+    margin-top: 20px; /* Add some space above the buttons */
+}
+  
+  .m3u-management button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 5px;
+  }
+  
+  .m3u-management button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  .m3u-management button:active {
+    transform: scale(0.95);
+  }
+  .add-m3u-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-right: 10px; /* Add space between buttons */
+}
+
+.add-m3u-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.table-container {
+    max-height: 400px; /* Set a maximum height for the table */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-top: 20px; /* Add some space above the table */
+}
+
+table {
+    width: 100%; /* Ensure the table takes full width of the container */
+    border-collapse: collapse; /* Collapse borders for a cleaner look */
+}
+
+th, td {
+    padding: 12px; /* Add padding for table cells */
+    border: 1px solid #dddddd; /* Add borders to table cells */
+    text-align: left; /* Align text to the left */
+}
+
+.progress-container {
+  width: 100%;
+  background-color: #201d1d;
+  border-radius: 5px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #4caf50; /* Green color */
+  border-radius: 5px;
+  transition: width 0.4s ease; /* Smooth transition */
+}
+
+.progress-container span {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  color: white;
+  font-weight: bold;
+}

@@ -1,0 +1,92 @@
+.watch-list-container {
+  position: sticky;
+  top: 10px; /* Adjust the top offset as needed */
+  max-height: calc(100vh - 20px); /* Ensure the watch list doesn't overflow */
+  overflow-y: auto; /* Add scrolling within the container if content overflows */
+}
+
+.watch-list {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+  border: none; /* Remove border */
+}
+
+.watch-list .card-header {
+  background: linear-gradient(135deg, #6a11cb, #2575fc); /* Gradient background */
+  color: white;
+  padding: 1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.watch-list .card-header h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.watch-list .list-group-item {
+  padding: 0.75rem 1.25rem;
+  transition: background-color 0.3s, transform 0.2s;
+  border: none; /* Remove border */
+}
+
+.watch-list .list-group-item:hover {
+  background-color: #333;
+  transform: translateX(5px); /* Slight move on hover */
+}
+
+.watch-list .list-group-item span {
+  flex-grow: 1;
+  margin-right: 1rem;
+}
+
+.watch-list .btn-outline-danger {
+  border-color: #ff4d4d;
+  color: #ff4d4d;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.watch-list .btn-outline-danger:hover {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.watch-list .btn-primary {
+  background-color: #2575fc;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.watch-list .btn-primary:hover {
+  background-color: #6a11cb;
+}
+
+.watch-list .btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Custom scrollbar */
+.watch-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.watch-list-container::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.watch-list-container::-webkit-scrollbar-thumb {
+  background: #6a11cb;
+  border-radius: 4px;
+}
+
+.watch-list-container::-webkit-scrollbar-thumb:hover {
+  background: #2575fc;
+}
+
+/* Ensure the sticky positioning works on all browsers */
+@supports (position: sticky) or (position: -webkit-sticky) {
+  .watch-list-container {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}

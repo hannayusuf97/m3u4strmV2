@@ -1,0 +1,23 @@
+# Exclude version control folders
+.git
+# Exclude Python caches
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+# Exclude virtual environments
+venv
+env
+.venv
+# Exclude IDE/project files
+.idea
+.vscode
+*.log
+.venv
+# Exclude test files (if not needed)
+tests/
+jellyfin
+results
+m3us
+node_modules
+deployment.env
