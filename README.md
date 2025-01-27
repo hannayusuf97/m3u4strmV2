@@ -41,7 +41,7 @@ services:
     container_name: m3u4stream_app
     environment:
       - MONGODB_PWD=${MONGODB_PWD}  # Fill this with your MongoDB password
-      - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case localhost:27017)
+      - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case m3u4stream_mongodb:27017)
       - MONGODB_USERNAME=${MONGODB_USERNAME}  # Fill this with your MongoDB username
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill this with your admin password
     volumes:
