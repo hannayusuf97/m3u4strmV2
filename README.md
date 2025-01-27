@@ -27,10 +27,10 @@ This project was created to solve the issue of playing M3U Plus lists on Jellyfi
 ![Image](https://i.ibb.co/znx0M5m/img1.png)
 ![Image](https://i.ibb.co/4Rgbw51/img2.png)
 ![Image](https://i.ibb.co/xhQM3tM/img3.png)
-
+![Image](https://i.ibb.co/zx299Rm/img4.png)
 
 ## Deployment as a Docker container
-To Deploy the Docker Image use docker compose
+
 
 ```yaml
 version: '3.8'
