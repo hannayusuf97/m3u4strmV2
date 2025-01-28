@@ -30,7 +30,7 @@ This project was created to solve the issue of playing M3U Plus lists on Jellyfi
 ![Image](https://i.ibb.co/zx299Rm/img4.png)
 
 ## Deployment using Docker Compose
-
+Docker file repository: https://hub.docker.com/repository/docker/hannayusuf/m3u4strm
 
 ```yaml
 services:
