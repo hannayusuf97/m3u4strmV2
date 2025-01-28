@@ -41,7 +41,7 @@ services:
       - MONGODB_PWD=${MONGODB_PWD}  # Fill this with your MongoDB password
       - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case m3u4stream_mongodb:27017)
       - MONGODB_USERNAME=${MONGODB_USERNAME}  # Fill this with your MongoDB username
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill this with your admin password
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill to set your admin password to access the admin portal
     volumes:
       - /path/to/m3us:/m3us
       - /path/to/results:/results  # Optional in case you want to easily access the strm results
