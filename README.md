@@ -4,7 +4,7 @@
 ## Introduction
 
 This project was created to solve the issue of playing M3U Plus lists on Jellyfin, the program uses a UI to manage M3Us and add media to Jellyfin. 
-
+** I used AI in this project mostly in the frontend
 
 
 
