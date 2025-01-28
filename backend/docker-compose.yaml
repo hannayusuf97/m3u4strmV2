@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    image: hannayusuf/m3u4strm:newV2
+    container_name: m3u4stream_app
+    environment:
+      - MONGODB_PWD=${MONGODB_PWD}
+      - MONGODB_URI=m3u4stream_mongodb:27017
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - C:\Users\hanna\PycharmProjects\m3u4strm\m3us:/m3us
+      - C:\Users\hanna\PycharmProjects\m3u4strm\results:/results  # Optional
+      - C:\Users\hanna\PycharmProjects\m3u4strm\movies:/jellyfin/movies
+      - C:\Users\hanna\PycharmProjects\m3u4strm\tvshows:/jellyfin/tvshows
+    ports:
+      - "8001:8001"
+      - "3000:3000"
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: m3u4stream_mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:

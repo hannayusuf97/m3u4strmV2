@@ -11,7 +11,7 @@ password = os.environ.get('MONGODB_PWD')
 uri = os.environ.get('MONGODB_URI')
 username = os.environ.get('MONGODB_USERNAME')
 # Define the connection string with the provided credentials and IP address
-connection_string = f"mongodb+srv://{username}:{password}@{uri}/?retryWrites=true&w=majority"
+connection_string = f"mongodb://{username}:{password}@{uri}/?retryWrites=true&w=majority"
 
 # Create a MongoClient to the running MongoDB instance
 client = motor.motor_asyncio.AsyncIOMotorClient(connection_string)

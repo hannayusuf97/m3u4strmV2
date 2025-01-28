@@ -21,3 +21,7 @@ results
 m3us
 node_modules
 deployment.env
+backend/docker-compose.yaml
+backend/.env
+*/.env
+Dockerfile-Backup

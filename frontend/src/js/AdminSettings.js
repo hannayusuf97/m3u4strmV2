@@ -22,7 +22,7 @@ const AdminSettings = () => {
       case '2':
         return <ProviderManagement/>;
       case '3':
-        return <p>System Logs: View and monitor system activities and logs.</p>;
+        return <p>General Settings: Change Admin password, and set paths.</p>;
       default:
         return <p>Select an option from the side navigation to view details.</p>;
     }
