@@ -33,8 +33,6 @@ This project was created to solve the issue of playing M3U Plus lists on Jellyfi
 
 
 ```yaml
-version: '3.8'
-
 services:
   app:
     image: hannayusuf/m3u4strmV2
