@@ -4,7 +4,7 @@
 ## Introduction
 
 This project was created to solve the issue of playing M3U Plus lists on Jellyfin, the program uses a UI to manage M3Us and add media to Jellyfin. 
-
+** I used AI in this project mostly in the frontend
 
 
 
@@ -30,11 +30,9 @@ This project was created to solve the issue of playing M3U Plus lists on Jellyfi
 ![Image](https://i.ibb.co/zx299Rm/img4.png)
 
 ## Deployment using Docker Compose
-
+Docker file repository: https://hub.docker.com/repository/docker/hannayusuf/m3u4strm
 
 ```yaml
-version: '3.8'
-
 services:
   app:
     image: hannayusuf/m3u4strmV2
@@ -43,7 +41,7 @@ services:
       - MONGODB_PWD=${MONGODB_PWD}  # Fill this with your MongoDB password
       - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case m3u4stream_mongodb:27017)
       - MONGODB_USERNAME=${MONGODB_USERNAME}  # Fill this with your MongoDB username
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill this with your admin password
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill to set your admin password to access the admin portal
     volumes:
       - /path/to/m3us:/m3us
       - /path/to/results:/results  # Optional in case you want to easily access the strm results
