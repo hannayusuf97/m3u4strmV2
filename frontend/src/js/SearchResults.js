@@ -13,7 +13,7 @@ const SearchResults = ({ addToWatchList }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const size = 20; // Default size for results
+  const size = 50;
   const query = new URLSearchParams(location.search).get('query');
 
   // Fetch media function
