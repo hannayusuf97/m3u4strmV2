@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import NProgress from 'nprogress'; // Import NProgress
 import '../css/SeriesInfo.css'; // Import the CSS file
 import getApiBaseUrl from './apiConfig';
+import secureApi from './SecureApi';
 
 const SeriesInfo = ({ addToWatchList }) => {
   const { id } = useParams();
@@ -13,7 +14,7 @@ const SeriesInfo = ({ addToWatchList }) => {
     const fetchSeriesInfo = async () => {
       NProgress.start(); // Start the loading bar
       try {
-        const response = await fetch(`${getApiBaseUrl()}/series/${id}`);
+        const response = await secureApi.get(`${getApiBaseUrl()}/series/${id}`);
         const data = await response.json();
         setSeries(data);
       } catch (error) {
@@ -70,7 +71,7 @@ const SeriesInfo = ({ addToWatchList }) => {
 
     try {
       NProgress.start(); // Start loading indicator
-      const response = await fetch(
+      const response = await secureApi.get(
         `${getApiBaseUrl()}/media_info/${encodeURIComponent(firstEpisode.url)}?media_id=${series.id}&media_type=series`
       );
       

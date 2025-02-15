@@ -6,6 +6,7 @@ import 'nprogress/nprogress.css'; // Import NProgress styles
 import InfiniteScroll from 'react-infinite-scroller'; // Import InfiniteScroll component
 import MediaItem from './MediaItem'; // Import the MediaItem component
 import getApiBaseUrl from './apiConfig'; // Import the utility function
+import secureApi from './SecureApi';
 
 const SearchResults = ({ addToWatchList }) => {
   const location = useLocation();
@@ -26,9 +27,9 @@ const SearchResults = ({ addToWatchList }) => {
     try {
       let response;
       if (!query) {
-        response = await axios.get(`${getApiBaseUrl()}/media?page=${pageToLoad}&size=7`);
+        response = await secureApi.get(`${getApiBaseUrl()}/media?page=${pageToLoad}&size=7`);
       } else {
-        response = await axios.get(`${getApiBaseUrl()}/search/?query=${query}&page=${pageToLoad}&size=${size}`);
+        response = await secureApi.get(`${getApiBaseUrl()}/search/?query=${query}&page=${pageToLoad}&size=${size}`);
       }
 
       const newMedia = response.data;

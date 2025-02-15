@@ -304,46 +304,46 @@ async def update_series_info(series_id: str, duration: str, resolution: str):
         raise
 
 
-async def load_m3u(m3u_files):
-    for m3u_file in m3u_files:
-        m3u_file = os.path.normpath(m3u_file)
-        try:
-            base_name = os.path.basename(m3u_file).split('.m3u')[0]
-            output_dir = f'./results/Result_{base_name}'
-            log_message(f"Processing m3u File: {m3u_file}", level='info')
+# async def load_m3u(m3u_files):
+#     for m3u_file in m3u_files:
+#         m3u_file = os.path.normpath(m3u_file)
+#         try:
+#             base_name = os.path.basename(m3u_file).split('.m3u')[0]
+#             output_dir = f'./results/Result_{base_name}'
+#             log_message(f"Processing m3u File: {m3u_file}", level='info')
 
-            movies, series = parse_m3u(m3u_file)
-            max_workers = max(1, os.cpu_count() - 2)
-            write_strm_files(movies, output_dir, 'movies', max_workers)
-            write_strm_files(series, output_dir, 'series', max_workers)
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+#             movies, series = parse_m3u(m3u_file)
+#             max_workers = max(1, os.cpu_count() - 2)
+#             write_strm_files(movies, output_dir, 'movies', max_workers)
+#             write_strm_files(series, output_dir, 'series', max_workers)
+#             if not os.path.exists(output_dir):
+#                 os.makedirs(output_dir)
 
-            create_json(movies, output_dir, 'movies')
-            print('Movies JSON created successfully')
-            create_json(series, output_dir, 'series')
-            print('Series JSON created successfully')
+#             create_json(movies, output_dir, 'movies')
+#             print('Movies JSON created successfully')
+#             create_json(series, output_dir, 'series')
+#             print('Series JSON created successfully')
 
-            movies_json_path = os.path.normpath(os.path.join(output_dir, 'movies.json'))
+#             movies_json_path = os.path.normpath(os.path.join(output_dir, 'movies.json'))
             
-            series_json_path = os.path.normpath(os.path.join(output_dir, 'series.json'))
-            if os.path.exists(movies_json_path):
-                print(f"Found movies JSON file: {movies_json_path}")
-            else:
-                print(f"Movies JSON file not found in {output_dir}")
+#             series_json_path = os.path.normpath(os.path.join(output_dir, 'series.json'))
+#             if os.path.exists(movies_json_path):
+#                 print(f"Found movies JSON file: {movies_json_path}")
+#             else:
+#                 print(f"Movies JSON file not found in {output_dir}")
 
-            if os.path.exists(series_json_path):
+#             if os.path.exists(series_json_path):
 
-                print(f"Found series JSON file: {series_json_path}")
-            else:
-                print(f"Series JSON file not found in {output_dir}")
+#                 print(f"Found series JSON file: {series_json_path}")
+#             else:
+#                 print(f"Series JSON file not found in {output_dir}")
 
-            # Insert all found movies JSON files
-            print(f"Inserting movies JSON file: {movies_json_path}")
-            await insert_all_json_movies([movies_json_path])
-            # Insert all found series JSON files
-            print(f"Inserting series JSON file: {series_json_path}")
-            await insert_all_json_series([series_json_path])
-            log_message(f"Processing completed for: {m3u_file}", level='info')
-        except Exception as e:
-            log_message(f"Error processing {m3u_file}: {str(e)}", level='error')
+#             # Insert all found movies JSON files
+#             print(f"Inserting movies JSON file: {movies_json_path}")
+#             await insert_all_json_movies([movies_json_path])
+#             # Insert all found series JSON files
+#             print(f"Inserting series JSON file: {series_json_path}")
+#             await insert_all_json_series([series_json_path])
+#             log_message(f"Processing completed for: {m3u_file}", level='info')
+#         except Exception as e:
+#             log_message(f"Error processing {m3u_file}: {str(e)}", level='error')

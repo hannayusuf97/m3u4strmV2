@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../css/styles.css'; // Ensure specific styles are imported
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import getApiBaseUrl from './apiConfig';
+import secureApi from './SecureApi';
 
 const placeholderImageSeries = '/tvshowimage.jpg';
 const placeholderImageMovie = '/movieimage.jpg';
@@ -44,7 +45,7 @@ const MediaItem = ({ item, addToWatchList }) => {
 
   const handleGetMovieInfo = async () => {
     try {
-      const response = await fetch(`${getApiBaseUrl()}/media_info/${encodeURIComponent(item.url)}?media_id=${item.id}&media_type=movie`); // Send both url and id
+      const response = await secureApi.get(`${getApiBaseUrl()}/media_info/${encodeURIComponent(item.url)}?media_id=${item.id}&media_type=movie`); // Send both url and id
       const { duration: newDuration, resolution: newResolution } = await response.json();
 
       // Update state with fetched values or default to "Unknown"
@@ -60,7 +61,7 @@ const MediaItem = ({ item, addToWatchList }) => {
       const firstEpisode = item.seasons[0].episodes[0];
       if (firstEpisode.url) {
         try {
-          const response = await fetch(`${getApiBaseUrl()}/media_info/${encodeURIComponent(firstEpisode.url)}?media_id=${item.id}&media_type=series`);
+          const response = await secureApi.get(`${getApiBaseUrl()}/media_info/${encodeURIComponent(firstEpisode.url)}?media_id=${item.id}&media_type=series`);
           const { duration: newDuration, resolution: newResolution } = await response.json();
 
           // Update state with fetched values or default to "Unknown"

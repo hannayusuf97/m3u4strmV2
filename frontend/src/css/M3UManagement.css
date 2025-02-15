@@ -17,7 +17,24 @@
     background-color: #2c3033;
     table-layout: auto; /* Allow columns to adjust based on content */
   }
+
   
+  .progress-bar {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .progress-bar::before {
+    content: attr(aria-valuenow) "%";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: white;
+  }
+  
+
   thead {
     background-color: #343a40;
     color: #ffffff;

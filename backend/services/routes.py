@@ -1,10 +1,6 @@
-import shutil
 import uuid
 from typing import List, Union, Dict
-from fastapi import FastAPI, HTTPException, APIRouter, Query, File, UploadFile, BackgroundTasks, Request
-from fastapi.responses import StreamingResponse
-from sse_starlette.sse import EventSourceResponse
-import asyncio
+from fastapi import HTTPException, APIRouter, Query, File, UploadFile, BackgroundTasks, WebSocket, WebSocketDisconnect, Depends
 from models.media_models import Movie, Series, Season, Episode, MediaItem
 from services.media_stream import get_video_info
 from services.database_service import (
@@ -19,10 +15,9 @@ from services.database_service import (
     serialize_basic_series,
     update_movie_info,
     update_series_info,
-    load_m3u,
+    insert_all_json_movies,
+    insert_all_json_series
 )
-import json
-from starlette.concurrency import run_in_threadpool
 from threading import Lock
 from models.provider_model import Provider
 from bson import ObjectId
@@ -32,11 +27,26 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from services.provider_service import get_provider_data, delete_all_providers
+from services.jellyfin_auth import scanLibrary,getisAdmin
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
+import uuid
+from services.log_and_progress import progress_tracker
+from services.json_utils import create_json
+from services.m3u_parser import parse_m3u
+from services.strm_utils import write_strm_files
+import asyncio
+import jwt
+
 
 router = APIRouter()
 # Load environment variables from .env file
 load_dotenv()
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+secret_key = os.environ.get('SECRET_TOKEN') 
+algorithm = os.environ.get('ALGORITHM', 'H256')
+access_token_expire_minutes = 30
+refresh_token_expire_days = 7 
+server_url = os.environ.get('JELLYFIN_URL')
 
 # Get the admin password from environment variables (this should be the hashed password)
 # Ensure this is the hashed password
@@ -266,7 +276,7 @@ async def receive_watchlist(watchlist: List[MediaItem]):
             else:
                 print(f"Received unknown item type: {type(item)}")  # Debugging log
                 raise HTTPException(status_code=400, detail="Invalid media item type")
-
+        scanLibrary()
         return {"message": "Watchlist received successfully!"}
 
     except Exception as e:
@@ -288,9 +298,32 @@ async def get_series_info(url: str, s_id: str):
         "resolution": resolution
     }
 
+# Admin stuff
 
-@router.get("/m3us", response_model=dict)
+
+async def admin_required(token: str = Depends(oauth2_scheme)):
+    # First get the username from the token
+    try:
+        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+            
+        # Now check if the user is admin using the username
+        if not getisAdmin(username):
+            raise HTTPException(status_code=403, detail="Admin access required")
+            
+        return username
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    
+@router.get("/m3us", response_model=dict, dependencies=[Depends(admin_required)])
 async def get_m3us():
+
     file_info = {}
     folder_path = './m3us'
     # Iterate through the files in the folder
@@ -310,9 +343,10 @@ async def get_m3us():
     return file_info  # Return as a dictionary
 
 
-@router.post("/delete-m3us")
+@router.post("/delete-m3us", dependencies=[Depends(admin_required)])
 async def delete_m3us(m3us: List[dict]):
     """Delete selected M3U files."""
+
     try:
         for m3u in m3us:
             file_path = m3u.get("filePath")
@@ -329,8 +363,9 @@ async def delete_m3us(m3us: List[dict]):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/upload-m3u")
+@router.post("/upload-m3u", dependencies=[Depends(admin_required)])
 async def upload_m3u(files: List[UploadFile] = File(...)):
+
     """Upload new M3U files."""
     uploaded_files = []
     upload_directory = './m3us'  # Ensure this directory exists
@@ -351,22 +386,98 @@ async def upload_m3u(files: List[UploadFile] = File(...)):
     return uploaded_files
 
 
-@router.post('/load-m3u')
-async def load_m3us(m3u_files: List[Dict[str, str]]):
-    """Load M3U files from the provided list of file paths."""
-    m3u_paths = []
-    for m3u_file in m3u_files:
-        m3u_paths.append(m3u_file['filePath'])
+
+security = HTTPBearer()
+
+
+
+@router.post('/load-m3u', dependencies=[Depends(admin_required)])
+async def load_m3us(m3u_files: List[Dict[str, str]], background_tasks: BackgroundTasks):
+
+
+    task_id = str(uuid.uuid4())
+    progress_tracker.create_task(task_id)
+    
+    m3u_paths = [m3u_file['filePath'] for m3u_file in m3u_files]
+
     try:
-        await load_m3u(m3u_paths)  # Call the existing load_m3u function with each file path
-        return {"message": "M3U files loaded successfully!"}
+        # Add the task to background processing
+        background_tasks.add_task(process_m3u_files, m3u_paths, task_id)
+        return {"task_id": task_id, "message": "M3U processing started"}
     except Exception as e:
-        print(f"Error loading M3U files: {e}")  # Log the error for debugging
+        progress_tracker.set_error(task_id, str(e))
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@router.get("/get-providers")
-async def get_providers() -> List[Provider]:
-    """Get a list of providers from the database."""
+@router.get("/load-m3u/progress/{task_id}")
+async def get_load_progress(task_id: str):
+    progress = progress_tracker.get_progress(task_id)
+    if not progress:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return progress
+
+async def process_m3u_files(m3u_paths: List[str], task_id: str):
+    try:
+        total_files = len(m3u_paths)
+
+        for i, m3u_file in enumerate(m3u_paths):
+            m3u_file = os.path.normpath(m3u_file)
+            base_name = os.path.basename(m3u_file).split('.m3u')[0]
+            output_dir = f'./results/Result_{base_name}'
+            
+            # Update status to show which file is being processed
+            progress_tracker.update_stage_progress(task_id, 'parse', 0)
+            progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Parsing)")
+
+            # Parse M3U (incrementally update progress)
+            movies, series = parse_m3u(m3u_file)
+            for progress in range(0, 101, 20):
+                progress_tracker.update_stage_progress(task_id, 'parse', progress)
+                progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Parsing {progress}%)")
+                await asyncio.sleep(0.1)
+
+            # Write STRM files (incremental updates)
+            progress_tracker.update_stage_progress(task_id, 'strm', 0)
+            progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Writing STRM files)")
+            max_workers = max(1, os.cpu_count() - 2)
+            write_strm_files(movies, output_dir, 'movies', max_workers)
+            write_strm_files(series, output_dir, 'series', max_workers)
+            for progress in range(0, 101, 25):
+                progress_tracker.update_stage_progress(task_id, 'strm', progress)
+                progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Writing STRM {progress}%)")
+                await asyncio.sleep(0.1)
+
+            # Create JSON (incrementally update progress)
+            progress_tracker.update_stage_progress(task_id, 'json', 0)
+            progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Creating JSON)")
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            create_json(movies, output_dir, 'movies')
+            create_json(series, output_dir, 'series')
+            for progress in range(0, 101, 50):
+                progress_tracker.update_stage_progress(task_id, 'json', progress)
+                progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Creating JSON {progress}%)")
+                await asyncio.sleep(0.1)
+
+            # Insert into the database (final stage)
+            progress_tracker.update_stage_progress(task_id, 'db', 0)
+            progress_tracker.update_status(task_id, f"Processing file {i + 1}/{total_files}: {base_name}.m3u (Inserting into database)")
+            movies_json_path = os.path.join(output_dir, 'movies.json')
+            series_json_path = os.path.join(output_dir, 'series.json')
+            await insert_all_json_movies([movies_json_path])
+            await insert_all_json_series([series_json_path])
+            progress_tracker.update_stage_progress(task_id, 'db', 100)
+            progress_tracker.update_status(task_id, f"Completed processing {base_name}.m3u")
+
+        # Mark the task as complete
+        progress_tracker.complete_task(task_id)
+    except Exception as e:
+        progress_tracker.set_error(task_id, f"Error processing files: {str(e)}")
+        raise
+
+
+
+@router.get("/get-providers", dependencies=[Depends(admin_required)])
+async def get_providers() -> List[Provider]:  
     try:
         providers = await get_provider_data()
         return providers
@@ -386,6 +497,7 @@ def count_files_and_folders(path: str) -> int:
     return total_count
 
 def run_deletion_task(providers: List[Provider], task_id: str):
+
     """Delete providers' files and folders recursively while tracking progress."""
     total_items = 0
     completed_items = 0
@@ -440,7 +552,7 @@ def run_deletion_task(providers: List[Provider], task_id: str):
         provider_store[task_id] = None
 
 
-@router.post("/delete-providers")
+@router.post("/delete-providers", dependencies=[Depends(admin_required)])
 async def delete_providers(providers: List[Provider], background_tasks: BackgroundTasks):
     task_id = str(uuid.uuid4())
     with progress_lock:
@@ -455,23 +567,18 @@ async def delete_providers(providers: List[Provider], background_tasks: Backgrou
 
 
 
-
 @router.get("/delete-progress")
-async def delete_progress(request: Request, task_id: str):
-    async def event_generator():
-        while True:
-            if request._is_disconnected:
-                break
-            with progress_lock:
-                progress = progress_store.get(task_id, 0.0)
-                current_provider = provider_store.get(task_id)
+async def delete_progress(task_id: str):
 
-            if progress == 100.0:
-                yield f"data: {json.dumps({'data': str(progress), 'completed': True, 'provider': None})}\n\n"
-                break
-            else:
-                yield f"data: {json.dumps({'data': str(progress), 'completed': False, 'provider': current_provider})}\n\n"
-
-            await asyncio.sleep(1)
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
-
+        
+    with progress_lock:
+        progress = progress_store.get(task_id, 0.0)
+        current_provider = provider_store.get(task_id)
+        
+    response_data = {
+        "progress": progress,
+        "completed": progress >= 100.0,
+        "provider": current_provider if progress < 100.0 else None
+    }
+    
+    return response_data

@@ -5,6 +5,7 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; // Import NProgress styles
 import MediaItem from './MediaItem'; // Import the MediaItem component
 import getApiBaseUrl from './apiConfig'; // Import the utility function
+import secureApi from './SecureApi';
 
 const Movies = ({ addToWatchList }) => {
   const [media, setMedia] = useState([]);
@@ -19,7 +20,7 @@ const Movies = ({ addToWatchList }) => {
     NProgress.start(); // Start the loading bar
 
     try {
-      const response = await axios.get(`${getApiBaseUrl()}/movies?page=${page}&size=10`);
+      const response = await secureApi.get(`${getApiBaseUrl()}/movies?page=${page}&size=10`);
       const newMedia = response.data;
 
       // Ensure that media items have the correct type

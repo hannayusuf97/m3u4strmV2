@@ -3,31 +3,28 @@ import React, { useState } from 'react';
 import NProgress from 'nprogress';
 import AdminSettings from './AdminSettings';
 import getApiBaseUrl from './apiConfig';
+import secureApi from './SecureApi';
 const ProtectedRoute = () => {
   const [inputPassword, setInputPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState('');
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     NProgress.start();
+    setError('');
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password: inputPassword }),
+      const response = await secureApi.post(`${getApiBaseUrl()}/login`, {
+        password: inputPassword
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data.message);
+      if (response.data.message === "Login successful") {
         setIsAuthenticated(true);
-      } else {
-        alert('Incorrect password. Please try again.');
       }
     } catch (error) {
+      const errorMessage = error.response?.data?.detail || 'An error occurred during authentication';
+      setError(errorMessage);
       console.error('Error during authentication:', error);
     } finally {
       NProgress.done();
@@ -35,11 +32,7 @@ const ProtectedRoute = () => {
   };
 
   if (isAuthenticated) {
-    return (
-      <div>
-        <AdminSettings />
-      </div>
-    );
+    return <AdminSettings />;
   }
 
   return (

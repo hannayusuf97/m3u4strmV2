@@ -1,7 +1,7 @@
-  import React from 'react';
-  import axios from 'axios';
-  import '../css/WatchList.css';
-  import getApiBaseUrl from './apiConfig';
+import React from 'react';
+import '../css/WatchList.css';
+import getApiBaseUrl from './apiConfig';
+import secureApi from './SecureApi';
   const WatchList = ({ items, removeItem, clearList }) => {
     const handleSubmit = async () => {
       try {
@@ -9,7 +9,7 @@
         const uniqueItems = Array.from(new Map(items.map(item => [item.id, item])).values());
         
         // Send the watchlist to the backend
-        const response = await axios.post(`${getApiBaseUrl()}/watchlist/`, uniqueItems);
+        const response = await secureApi.post(`${getApiBaseUrl()}/watchlist/`, uniqueItems);
         console.log(response.data);
       // Log the response from the backend
         clearList();

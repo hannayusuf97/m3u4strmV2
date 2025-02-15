@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import NProgress from 'nprogress'; // Import NProgress
 import '../css/MovieInfo.css'; // Import the CSS file
 import getApiBaseUrl from './apiConfig'; // Import the utility function
+import secureApi from './SecureApi';
 
 const MovieInfo = ({ addToWatchList }) => {
   const { id } = useParams();
@@ -13,8 +14,8 @@ const MovieInfo = ({ addToWatchList }) => {
     const fetchMovieInfo = async () => {
       NProgress.start(); // Start the loading bar
       try {
-        const response = await fetch(`${getApiBaseUrl()}/movies/${id}`);
-        const data = await response.json();
+        const response = await secureApi.get(`${getApiBaseUrl()}/movies/${id}`);
+        const data = await response.data;
         setMovie(data);
       } catch (error) {
         console.error('Error fetching movie info:', error);
@@ -45,8 +46,8 @@ const MovieInfo = ({ addToWatchList }) => {
   const handleGetMovieInfo = async () => {
     if (movie && movie.url) {
       try {
-        const response = await fetch(`${getApiBaseUrl()}/media_info/${encodeURIComponent(movie.url)}?media_id=${movie.id}&media_type=movie`);
-        const { duration: newDuration, resolution: newResolution } = await response.json();
+        const response = await secureApi.get(`${getApiBaseUrl()}/media_info/${encodeURIComponent(movie.url)}?media_id=${movie.id}&media_type=movie`);
+        const { duration: newDuration, resolution: newResolution } = await response.data;
 
         // Update the state if new data is fetched
         if (newDuration && newDuration !== "Error") setMovie(prev => ({ ...prev, duration: newDuration }));
