@@ -3,7 +3,6 @@ import '../css/styles.css'; // Ensure specific styles are imported
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import getApiBaseUrl from './apiConfig';
 import secureApi from './SecureApi';
-
 const placeholderImageSeries = '/tvshowimage.jpg';
 const placeholderImageMovie = '/movieimage.jpg';
 
@@ -36,7 +35,7 @@ const MediaItem = ({ item, addToWatchList }) => {
 
   const handleViewEpisodes = (id) => {
     console.log(`View Episodes clicked for ${item.name}`);
-    window.location.href = `/series/${id}`; // Update the URL to the series page
+    navigate(`/series/${id}`); // Update the URL to the series page
   };
 
   const handleViewDetails = () => {
@@ -46,7 +45,7 @@ const MediaItem = ({ item, addToWatchList }) => {
   const handleGetMovieInfo = async () => {
     try {
       const response = await secureApi.get(`${getApiBaseUrl()}/media_info/${encodeURIComponent(item.url)}?media_id=${item.id}&media_type=movie`); // Send both url and id
-      const { duration: newDuration, resolution: newResolution } = await response.json();
+      const { duration: newDuration, resolution: newResolution } = await response.data;
 
       // Update state with fetched values or default to "Unknown"
       setDuration(newDuration && newDuration !== "Unknown" ? newDuration : "Unknown");
@@ -56,24 +55,48 @@ const MediaItem = ({ item, addToWatchList }) => {
     }
   };
 
-  const handleGetSeriesInfo = async () => {
-    if (item.seasons && item.seasons.length > 0 && item.seasons[0].episodes.length > 0) {
-      const firstEpisode = item.seasons[0].episodes[0];
-      if (firstEpisode.url) {
-        try {
-          const response = await secureApi.get(`${getApiBaseUrl()}/media_info/${encodeURIComponent(firstEpisode.url)}?media_id=${item.id}&media_type=series`);
-          const { duration: newDuration, resolution: newResolution } = await response.json();
-
-          // Update state with fetched values or default to "Unknown"
-          setDuration(newDuration && newDuration !== "Unknown" ? newDuration : "Unknown");
-          setResolution(newResolution && newResolution !== "Unknown" ? newResolution : "Unknown");
-        } catch (error) {
-          console.error('Error fetching series info:', error);
-        }
-      }
+  const handleGetSeriesInfos = async () => {
+    // Check if series and seasons exist
+    if (!item.seasons || item.seasons.length === 0) {
+      console.error('No seasons found in the series');
+      return;
     }
-    else {
-        console.log("Error ")
+
+    // Get the first season
+    const firstSeason = item.seasons[0];
+
+    // Check if the first season has episodes
+    if (!firstSeason.episodes || firstSeason.episodes.length === 0) {
+      console.error('No episodes found in the first season');
+      return;
+    }
+
+    // Get the first episode of the first season
+    const firstEpisode = firstSeason.episodes[0];
+
+    // Check if the first episode has a URL
+    if (!firstEpisode.url) {
+      console.error('No URL found for the first episode');
+      return;
+    }
+
+    try {
+      const response = await secureApi.get(
+        `${getApiBaseUrl()}/media_info/${encodeURIComponent(firstEpisode.url)}?media_id=${item.id}&media_type=series`
+      );
+      
+      if (!response.statusCode === 200) {
+        throw new Error('Network response was not ok');
+      }
+
+      const { duration: newDuration, resolution: newResolution } = await response.data;
+
+      // Update the series state with new values
+      setDuration(newDuration && newDuration !== "Unknown" ? newDuration : "Unknown");
+      setResolution(newResolution && newResolution !== "Unknown" ? newResolution : "Unknown");
+
+    } catch (error) {
+      console.error('Error fetching series info:', error);
     }
   };
 
@@ -115,7 +138,7 @@ const MediaItem = ({ item, addToWatchList }) => {
             {mediaType === 'Series' && (
               <>
                 <button className="btn btn-info btn-sm" onClick={() => handleViewEpisodes(item.id)}>View Episodes</button>
-                <button className="btn btn-secondary btn-sm" onClick={handleGetSeriesInfo}>Get Series Info</button>
+                <button className="btn btn-secondary btn-sm" onClick={handleGetSeriesInfos}>Get Series Info</button>
               </>
             )}
             {mediaType === 'Movie' && (

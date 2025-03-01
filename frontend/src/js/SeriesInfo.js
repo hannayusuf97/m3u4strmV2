@@ -15,7 +15,7 @@ const SeriesInfo = ({ addToWatchList }) => {
       NProgress.start(); // Start the loading bar
       try {
         const response = await secureApi.get(`${getApiBaseUrl()}/series/${id}`);
-        const data = await response.json();
+        const data = await response.data;
         setSeries(data);
       } catch (error) {
         console.error('Error fetching series info:', error);
@@ -75,11 +75,11 @@ const SeriesInfo = ({ addToWatchList }) => {
         `${getApiBaseUrl()}/media_info/${encodeURIComponent(firstEpisode.url)}?media_id=${series.id}&media_type=series`
       );
       
-      if (!response.ok) {
+      if (!response.status === 200) {
         throw new Error('Network response was not ok');
       }
 
-      const { duration: newDuration, resolution: newResolution } = await response.json();
+      const { duration: newDuration, resolution: newResolution } = await response.data;
 
       // Update the series state with new values
       setSeries(prev => ({

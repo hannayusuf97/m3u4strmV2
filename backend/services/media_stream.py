@@ -35,7 +35,7 @@ def get_video_info(file_path):
         # Search for duration
         duration_match = duration_pattern.search(info)
         if duration_match:
-            duration_str = duration_match.group(1)  # e.g. '02:49:04.00'
+            duration_str = duration_match.group(1) 
             duration = parse_duration(duration_str)
 
         # Search for resolution

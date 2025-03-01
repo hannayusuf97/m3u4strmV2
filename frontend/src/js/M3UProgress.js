@@ -1,21 +1,16 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { useWebSocket } from './WebSocketContext';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Progress } from '../components/ui/progress';
 
-const M3UProgress = () => {
-  const { processingProgress } = useWebSocket();
-
-  const calculateTotalProgress = () => {
-    if (processingProgress.totalM3Us === 0) return 0;
-    return (processingProgress.currentM3U / processingProgress.totalM3Us) * 100;
-  };
+const M3UProgress = ({ processingProgress }) => {
+  if (!processingProgress || processingProgress.total_progress === 0) {
+    return null;
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>M3U Processing Progress</CardTitle>
+        <CardTitle>Upload Progress</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -23,13 +18,20 @@ const M3UProgress = () => {
             <span>Overall Progress</span>
             <span>{processingProgress.currentM3U} of {processingProgress.totalM3Us}</span>
           </div>
-          <Progress value={calculateTotalProgress()} />
+          <Progress value={processingProgress.total_progress} />
         </div>
 
-        <div className="mt-4">
-          <strong>Current File:</strong> {processingProgress.currentFile}
-          <p>{processingProgress.message}</p>
-        </div>
+        {processingProgress.currentFile && (
+          <div className="mt-4">
+            <strong>Current File:</strong> {processingProgress.currentFile}
+          </div>
+        )}
+
+        {processingProgress.message && (
+          <div className="text-sm text-muted-foreground">
+            {processingProgress.message}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

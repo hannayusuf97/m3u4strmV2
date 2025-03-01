@@ -3,12 +3,21 @@ import getApiBaseUrl from "./apiConfig";
 import secureApi from "./SecureApi";
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import M3UProgress from "./M3UProgress";
 
 const M3UManagement = () => {
   const [tableData, setTableData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [fileInput, setFileInput] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState({
+    total_progress: 0,
+    currentFile: '',
+    message: '',
+    totalM3Us: 0,
+    currentM3U: 0,
+    is_complete: false,
+    error: null
+  });
   const [loadingTaskId, setLoadingTaskId] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(null);
   const [error, setError] = useState(null);
@@ -66,36 +75,90 @@ const M3UManagement = () => {
 
   const handleAddM3U = async (event) => {
     const files = event.target.files;
-    if (files.length > 0) {
+    if (!files.length) return;
+  
+    setUploadProgress({
+      total_progress: 0,
+      currentFile: files[0].name,
+      message: 'Starting upload...',
+      totalM3Us: files.length,
+      currentM3U: 1,
+      is_complete: false,
+      error: null
+    });
+  
+    try {
       const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
+      Array.from(files).forEach(file => {
+        formData.append('m3u_files', file);
+      });
+  
+      // Using secureApi (Axios) with progress tracking
+      const response = await secureApi.post(`${getApiBaseUrl()}/upload-m3u`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentComplete = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          
+          setUploadProgress(prev => ({
+            ...prev,
+            total_progress: percentComplete,
+            message: `Uploading: ${percentComplete}%`
+          }));
+        }
+      });
+  
+      console.log("Upload response:", response.data);
+      
+      // Handle successful upload
+      setUploadProgress(prev => ({
+        ...prev,
+        total_progress: 100,
+        message: 'Upload complete!',
+        is_complete: true
+      }));
+      
+      // Refresh the table after successful upload
+      const apiUrl = `${getApiBaseUrl()}/m3us/`;
+      const refreshResponse = await secureApi.get(apiUrl);
+      
+      if (refreshResponse.data) {
+        const data = refreshResponse.data;
+        const formattedData = Object.entries(data).map(
+          ([file, { file_path, creation_date }]) => ({
+            file,
+            path: file_path,
+            creationTime: creation_date,
+          })
+        );
+        setTableData(formattedData);
       }
-
-      try {
-        const uploadUrl = `${getApiBaseUrl()}/upload-m3u`;
-        console.log("Uploading to:", uploadUrl);
-
-        const response = await secureApi.post(uploadUrl, formData, {
-          onUploadProgress: (progressEvent) => {
-            const percentComplete =
-              (progressEvent.loaded / progressEvent.total) * 100;
-            setUploadProgress(percentComplete);
-          },
+      
+    } catch (error) {
+      console.error("Upload error:", error);
+      setUploadProgress(prev => ({
+        ...prev,
+        error: error.response?.data?.detail || error.message || "Upload failed",
+        is_complete: true
+      }));
+    } finally {
+      // Reset upload state after a delay
+      setTimeout(() => {
+        setUploadProgress({
+          total_progress: 0,
+          currentFile: '',
+          message: '',
+          totalM3Us: 0,
+          currentM3U: 0,
+          is_complete: false,
+          error: null
         });
-
-        const newFiles = response.data;
-        setTableData((prevData) => [...prevData, ...newFiles]);
-        setUploadProgress(0);
-        setError(null);
-      } catch (error) {
-        console.error("Upload error details:", error);
-        const errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to upload files";
-        setError(errorMessage);
-      }
+        // Clear the file input
+        document.getElementById('file-upload').value = '';
+      }, 3000);
     }
   };
 
@@ -308,26 +371,7 @@ const M3UManagement = () => {
             </div>
           )}
 
-          {uploadProgress > 0 && (
-            <div className="mt-3">
-              <div className="progress" style={{ height: "25px" }}>
-                <div
-                  className="progress-bar bg-success progress-bar-striped progress-bar-animated fw-bold"
-                  role="progressbar"
-                  style={{
-                    width: `${loadingProgress.total_progress || 0}%`,
-                    transition: "width 0.5s ease",
-                    whiteSpace: "nowrap", // Prevents text from wrapping or disappearing
-                  }}
-                  aria-valuenow={loadingProgress.total_progress || 0}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                >
-                  {Math.round(loadingProgress.total_progress || 0)}%
-                </div>
-              </div>
-            </div>
-          )}
+          <M3UProgress processingProgress={uploadProgress} />
         </div>
       </div>
     </div>
@@ -335,3 +379,4 @@ const M3UManagement = () => {
 };
 
 export default M3UManagement;
+

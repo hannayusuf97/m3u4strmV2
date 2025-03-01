@@ -36,6 +36,8 @@ from services.m3u_parser import parse_m3u
 from services.strm_utils import write_strm_files
 import asyncio
 import jwt
+from fastapi.responses import JSONResponse
+import aiofiles
 
 
 router = APIRouter()
@@ -363,27 +365,34 @@ async def delete_m3us(m3us: List[dict]):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/upload-m3u", dependencies=[Depends(admin_required)])
-async def upload_m3u(files: List[UploadFile] = File(...)):
+UPLOAD_DIR = "./m3us"
 
-    """Upload new M3U files."""
-    uploaded_files = []
-    upload_directory = './m3us'  # Ensure this directory exists
-    if not os.path.isdir(upload_directory):
-        raise FileNotFoundError(f"The directory '{upload_directory}' does not exist.")
-
-    for file in files:
-        if file.filename.endswith('.m3u') or file.filename.endswith('.m3u8'):
-            file_location = os.path.join(upload_directory, file.filename)
-            with open(file_location, "wb") as f:
-                f.write(await file.read())
-            uploaded_files.append({
-                "file": file.filename,
-                "path": os.path.normpath(file_location),
-                "creation_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Add creation time
-            })
-
-    return uploaded_files
+@router.post("/upload-m3u")
+async def upload_m3u(m3u_files: List[UploadFile] = File(...)):
+    try:
+        if not m3u_files:
+            raise HTTPException(status_code=400, detail="No files provided")
+        
+        # Create the upload directory if it doesn't exist
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        
+        # Process each file
+        for file in m3u_files:
+            if not file.filename.endswith(('.m3u', '.m3u8')):
+                raise HTTPException(status_code=400, detail="Invalid file type")
+            
+            # Save file to the specified directory
+            file_path = os.path.join(UPLOAD_DIR, file.filename)
+            
+            # Read the contents and save the file
+            contents = await file.read()
+            async with aiofiles.open(file_path, 'wb') as f:
+                await f.write(contents)
+        
+        return {"message": "Files uploaded successfully"}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during upload: {str(e)}")
 
 
 
