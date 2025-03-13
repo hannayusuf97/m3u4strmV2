@@ -42,6 +42,7 @@ services:
       - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case m3u4stream_mongodb:27017)
       - MONGODB_USERNAME=${MONGODB_USERNAME}  # Fill this with your MongoDB username
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill to set your admin password to access the admin portal
+      - SECRET_TOKEN=$(SECRET_TOKEN) # Generate a secret token and provide it here (you can input anything but it is recommended to generate a secret token https://jwtsecret.com/generate)
     volumes:
       - /path/to/m3us:/m3us
       - /path/to/results:/results  # Optional in case you want to easily access the strm results
