@@ -35,7 +35,7 @@ Docker file repository: https://hub.docker.com/repository/docker/hannayusuf/m3u4
 ```yaml
 services:
   app:
-    image: hannayusuf/m3u4strmV2
+    image: hannayusuf/m3u4strm:newV2
     container_name: m3u4stream_app
     environment:
       - MONGODB_PWD=${MONGODB_PWD}  # Fill this with your MongoDB password
