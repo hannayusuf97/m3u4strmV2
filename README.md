@@ -39,7 +39,7 @@ services:
     container_name: m3u4stream_app
     environment:
       - MONGODB_USERNAME=db_user # Write some user
-      - MONGODB_PWD=supersecretpassword
+      - MONGODB_PWD=supersecretpassword # some db password 
       - MONGODB_URI=m3u4stream_mongodb:27017
       - ADMIN_PASSWORD=supersecretadminpassword
       - JELLYFIN_URL=http://jellyfin-ip:8096 # Enter your jellyfin ip address (important! use your local ip + port)
@@ -60,8 +60,8 @@ services:
     image: mongo:latest
     container_name: m3u4stream_mongodb
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=db_user
-      - MONGO_INITDB_ROOT_PASSWORD=supersecretpassword
+      - MONGO_INITDB_ROOT_USERNAME=db_user # same username as above
+      - MONGO_INITDB_ROOT_PASSWORD=supersecretpassword # same password as above
     volumes:
       - mongodb_data:/data/db
     ports:
