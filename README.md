@@ -31,43 +31,51 @@ This project was created to solve the issue of playing M3U Plus lists on Jellyfi
 
 ## Deployment using Docker Compose
 Docker file repository: https://hub.docker.com/repository/docker/hannayusuf/m3u4strm
-
+Below are only example inputs please use yours! 
 ```yaml
 services:
   app:
-    image: hannayusuf/m3u4strm:newV2
+    image: hannayusuf/m3u4strm:newV3
     container_name: m3u4stream_app
     environment:
-      - MONGODB_PWD=${MONGODB_PWD}  # Fill this with your MongoDB password
-      - MONGODB_URI=${MONGODB_URI}  # Fill this with your MongoDB URI (in this case m3u4stream_mongodb:27017)
-      - MONGODB_USERNAME=${MONGODB_USERNAME}  # Fill this with your MongoDB username
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}  # Fill to set your admin password to access the admin portal
-      - JELLYFIN_URL = ${JELLYFIN_URL} # Set to your Jellyfin URL
+      - MONGODB_USERNAME=db_user # Write some user
+      - MONGODB_PWD=supersecretpassword
+      - MONGODB_URI=m3u4stream_mongodb:27017
+      - ADMIN_PASSWORD=supersecretadminpassword
+      - JELLYFIN_URL=http://jellyfin-ip:8096 # Enter your jellyfin ip address (important! use your local ip + port)
     volumes:
-      - /path/to/m3us:/m3us
-      - /path/to/results:/results  # Optional in case you want to easily access the strm results
-      - /path/to/jellyfin/movies:/jellyfin/movies
-      - /path/to/jellyfin/tvshows:/jellyfin/tvshows
+      - /path/to/your/m3us:/m3us # Optional, provides easy access
+      - /path/to/your/results:/results # Optional, provides easy access
+      - /path/to/your/jellyfin/movies:/jellyfin/movies # Make sure this is binded to your Jellyfin directory!
+      - /path/to/your/jellyfin/tvshows:/jellyfin/tvshows # Make sure this is binded to your Jellyfin directory!
     ports:
       - "8001:8001"
-      - "3000:3000"
-    network_mode: host
+      - "5173:5173"
     depends_on:
       - mongodb
+    networks:
+      - m3u4stream_net
 
   mongodb:
     image: mongo:latest
     container_name: m3u4stream_mongodb
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}  # Use the same username as above
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PWD}  # Use the same password as above
+      - MONGO_INITDB_ROOT_USERNAME=db_user
+      - MONGO_INITDB_ROOT_PASSWORD=supersecretpassword
     volumes:
       - mongodb_data:/data/db
     ports:
       - "27017:27017"
+    networks:
+      - m3u4stream_net
     restart: unless-stopped
 
 volumes:
   mongodb_data:
+
+networks:
+  m3u4stream_net:
+    driver: bridge
+
   
 ```
